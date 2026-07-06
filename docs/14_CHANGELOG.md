@@ -22,3 +22,16 @@
   - Editable fields: name, photo, skills. Role and email are immutable after registration.
   - Skills edited as a comma-separated field, stored as string[].
   - Profile reuses the existing `users` collection, so no new Firestore rules.
+
+## MARKETPLACE
+- New `services` collection (id, freelanceId, title, price, description).
+- Browse marketplace screen (list of all services, newest first).
+- Create service screen (freelancers only): title, price, description.
+- `service-service.ts` + `use-services.ts` (list) / `use-create-service` hooks.
+- Firestore rules for `services`: read by any signed-in user; create/update/delete
+  only by the owning freelancer (freelanceId == uid).
+- Assumptions (no dedicated phase spec; derived from 03_DATABASE):
+  - Added `createdAt` to services for stable ordering (not in the schema field list).
+  - Only users with role `freelance` may publish services (enforced in UI;
+    ownership enforced in rules).
+  - Price stored as a non-negative number (USD).
