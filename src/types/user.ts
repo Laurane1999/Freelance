@@ -22,3 +22,13 @@ export interface NewUserInput {
   email: string;
   role: UserRole;
 }
+
+/**
+ * Editable profile fields (USER_PROFILE phase). Role and email are immutable
+ * after registration; only name, photo and skills can be updated.
+ */
+export interface ProfileUpdateInput {
+  name: string;
+  photo: string | null;
+  skills: string[];
+}

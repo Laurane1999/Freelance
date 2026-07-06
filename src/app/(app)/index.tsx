@@ -17,15 +17,20 @@ export default function HomeScreen() {
   };
 
   return (
-    <Screen scroll={false}>
-      <View style={styles.content}>
-        <Text style={styles.greeting}>Welcome{user?.name ? `, ${user.name}` : ''}</Text>
-        <View style={styles.card}>
-          <Row label="Email" value={user?.email ?? '—'} />
-          <Row label="Role" value={user?.role ?? '—'} />
-        </View>
+    <Screen>
+      <Text style={styles.greeting}>Welcome{user?.name ? `, ${user.name}` : ''}</Text>
+
+      <View style={styles.card}>
+        <Row label="Email" value={user?.email ?? '—'} />
+        <Row label="Role" value={user?.role ?? '—'} />
+        <Row label="Skills" value={user?.skills?.length ? user.skills.join(', ') : '—'} />
       </View>
 
+      <View style={styles.nav}>
+        <Button label="Edit profile" onPress={() => router.push('/(app)/profile')} />
+      </View>
+
+      <View style={styles.spacer} />
       <Button label="Log out" variant="accent" onPress={onLogout} />
     </Screen>
   );
@@ -41,10 +46,6 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    gap: 24,
-  },
   greeting: {
     fontSize: 28,
     fontWeight: '700',
@@ -58,15 +59,24 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
   },
+  nav: {
+    gap: 12,
+  },
+  spacer: {
+    flex: 1,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 16,
   },
   rowLabel: {
     fontSize: 15,
     color: Brand.textMuted,
   },
   rowValue: {
+    flexShrink: 1,
+    textAlign: 'right',
     fontSize: 15,
     fontWeight: '600',
     color: Brand.text,

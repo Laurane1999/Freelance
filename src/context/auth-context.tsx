@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -8,12 +9,17 @@ import {
 } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
 
-import { loadProfile, subscribeToAuthChanges } from '@/services/auth-service';
+import {
+  loadCurrentProfile,
+  loadProfile,
+  subscribeToAuthChanges,
+} from '@/services/auth-service';
 import type { AuthState } from '@/types/auth';
 import type { User } from '@/types/user';
 
 interface AuthContextValue extends AuthState {
   isAuthenticated: boolean;
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -65,12 +71,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
+  const refresh = useCallback(async () => {
+    const profile = await loadCurrentProfile();
+    if (profile) {
+      setState({ status: 'authenticated', user: profile });
+    }
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       ...state,
       isAuthenticated: state.status === 'authenticated',
+      refresh,
     }),
-    [state],
+    [state, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

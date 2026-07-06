@@ -66,6 +66,18 @@ export async function loadProfile(firebaseUser: FirebaseUser): Promise<User | nu
 }
 
 /**
+ * Reloads the profile for the currently authenticated user. Returns null when
+ * there is no active session. Used to refresh global state after profile edits.
+ */
+export async function loadCurrentProfile(): Promise<User | null> {
+  const current = auth.currentUser;
+  if (!current) {
+    return null;
+  }
+  return getUserById(current.uid);
+}
+
+/**
  * Subscribes to Firebase auth session changes. Used by the AuthContext to keep
  * the session persistent across app restarts.
  */
