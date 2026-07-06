@@ -6,12 +6,14 @@ import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { TextField } from '@/components/text-field';
 import { Brand } from '@/constants/theme';
+import { useAuth } from '@/hooks/use-auth';
 import { useProfile } from '@/hooks/use-profile';
 import { parseSkills, skillsToText } from '@/utils/skills';
 import { validateName } from '@/utils/validation';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
   const { user, submitting, error, clearError, updateProfile } = useProfile();
 
   const [name, setName] = useState(user?.name ?? '');
@@ -19,6 +21,11 @@ export default function ProfileScreen() {
   const [skills, setSkills] = useState(skillsToText(user?.skills ?? []));
   const [nameError, setNameError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  const onLogout = async () => {
+    await logout();
+    router.replace('/(auth)/login');
+  };
 
   const onSave = async () => {
     clearError();
@@ -88,7 +95,7 @@ export default function ProfileScreen() {
       {saved ? <Text style={styles.success}>Profile updated.</Text> : null}
 
       <Button label="Save changes" loading={submitting} onPress={onSave} />
-      <Button label="Back" variant="ghost" onPress={() => router.back()} />
+      <Button label="Log out" variant="accent" onPress={onLogout} style={styles.logout} />
     </Screen>
   );
 }
@@ -132,5 +139,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Brand.accent,
     fontWeight: '600',
+  },
+  logout: {
+    marginTop: 8,
   },
 });
