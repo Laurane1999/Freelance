@@ -1,6 +1,6 @@
 # PROJECT STATE
 
-CURRENT_PHASE: MISSIONS
+CURRENT_PHASE: CHAT
 STATUS: IN_PROGRESS
 
 COMPLETED_PHASES:
@@ -13,14 +13,16 @@ COMPLETED_PHASES:
 - AUTH_SYSTEM
 - USER_PROFILE
 - MARKETPLACE
-
-ACTIVE_PHASE:
 - MISSIONS
 
+ACTIVE_PHASE:
+- CHAT
+
 ACTIVE_TASKS:
-- Hire a freelancer (create mission)
-- Track mission status (accept / complete / cancel)
-- Firestore rules for missions
+- Conversation list
+- Real-time message thread
+- Start a conversation from a mission
+- Firestore rules for conversations / messages
 
 NEXT_PHASE:
-- CHAT
+- NOTIFICATIONS

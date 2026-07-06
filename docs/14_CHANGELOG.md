@@ -48,3 +48,18 @@
   - `status` values: pending → accepted → completed, plus cancelled.
   - Added `createdAt`, `serviceId`, `serviceTitle` (denormalized for display/ordering).
   - Missions are opened by a client hiring a freelancer's service.
+
+## CHAT
+- New `conversations` collection; messages stored as a `messages` subcollection.
+- Conversation list (with other participant's name + last message preview).
+- Real-time message thread via Firestore `onSnapshot`.
+- Start/open a 1:1 conversation from a mission's "Message" button.
+- `chat-service.ts` + `use-chat.ts` (`useConversations`, `useConversation`,
+  `useOpenConversation`).
+- Firestore rules for `conversations` + `conversations/{id}/messages`: access
+  limited to participants; message sender must be a participant.
+- Assumptions (no dedicated phase spec; derived from 03_DATABASE):
+  - Messages are a subcollection of a conversation so message docs keep exactly
+    the schema fields (senderId, text, createdAt); the conversation id is the path.
+  - Added `lastText`, `createdAt`, `updatedAt` to conversations for list preview/order.
+  - Conversations are 1:1 (exactly two participants).

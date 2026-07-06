@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +6,7 @@ import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { Brand } from '@/constants/theme';
 import { useSession } from '@/hooks/use-auth';
+import { useOpenConversation } from '@/hooks/use-chat';
 import { useMissionActions, useMissions } from '@/hooks/use-missions';
 import type { Mission, MissionStatus } from '@/types/mission';
 
@@ -17,9 +18,11 @@ const STATUS_COLORS: Record<MissionStatus, string> = {
 };
 
 export default function MissionsScreen() {
+  const router = useRouter();
   const { user } = useSession();
   const { missions, loading, error, reload } = useMissions(user?.id);
   const { submitting, error: actionError, setStatus } = useMissionActions();
+  const { opening, error: chatError, openConversation } = useOpenConversation();
 
   useFocusEffect(
     useCallback(() => {
@@ -34,10 +37,21 @@ export default function MissionsScreen() {
     }
   };
 
+  const onMessage = async (mission: Mission) => {
+    if (!user) return;
+    const otherUserId =
+      mission.freelanceId === user.id ? mission.clientId : mission.freelanceId;
+    const conversationId = await openConversation(user.id, otherUserId);
+    if (conversationId) {
+      router.push(`/(app)/chat/${conversationId}`);
+    }
+  };
+
   return (
     <Screen scroll={false}>
       <Text style={styles.title}>Missions</Text>
       {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
+      {chatError ? <Text style={styles.error}>{chatError}</Text> : null}
 
       {loading ? (
         <ActivityIndicator size="large" color={Brand.primary} style={styles.loader} />
@@ -58,8 +72,9 @@ export default function MissionsScreen() {
             <MissionCard
               mission={item}
               currentUserId={user?.id ?? ''}
-              disabled={submitting}
+              disabled={submitting || opening}
               onSetStatus={onSetStatus}
+              onMessage={onMessage}
             />
           )}
         />
@@ -73,11 +88,13 @@ function MissionCard({
   currentUserId,
   disabled,
   onSetStatus,
+  onMessage,
 }: {
   mission: Mission;
   currentUserId: string;
   disabled: boolean;
   onSetStatus: (id: string, status: MissionStatus) => void;
+  onMessage: (mission: Mission) => void;
 }) {
   const isFreelancer = mission.freelanceId === currentUserId;
   const isClient = mission.clientId === currentUserId;
@@ -130,6 +147,14 @@ function MissionCard({
             style={styles.action}
           />
         ) : null}
+
+        <Button
+          label="Message"
+          variant="ghost"
+          disabled={disabled}
+          onPress={() => onMessage(mission)}
+          style={styles.action}
+        />
       </View>
     </View>
   );
