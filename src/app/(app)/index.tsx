@@ -28,6 +28,7 @@ export default function HomeScreen() {
 
       <View style={styles.nav}>
         <Button label="Marketplace" onPress={() => router.push('/(app)/marketplace')} />
+        <Button label="Missions" onPress={() => router.push('/(app)/missions')} />
         <Button
           label="Edit profile"
           variant="ghost"

@@ -35,3 +35,16 @@
   - Only users with role `freelance` may publish services (enforced in UI;
     ownership enforced in rules).
   - Price stored as a non-negative number (USD).
+
+## MISSIONS
+- New `missions` collection (id, clientId, freelanceId, status).
+- Hire flow: clients hire from a marketplace service card → mission (`pending`).
+- Missions screen: participants track and advance status
+  (freelancer accepts/declines/completes; client cancels).
+- `mission-service.ts` + `use-missions.ts` (`useMissions`, `useMissionActions`).
+- Firestore rules for `missions`: read/update by either participant; create only
+  by the client as `pending`; participants immutable; no delete.
+- Assumptions (no dedicated phase spec; derived from 03_DATABASE):
+  - `status` values: pending → accepted → completed, plus cancelled.
+  - Added `createdAt`, `serviceId`, `serviceTitle` (denormalized for display/ordering).
+  - Missions are opened by a client hiring a freelancer's service.

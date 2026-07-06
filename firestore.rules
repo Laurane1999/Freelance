@@ -38,6 +38,17 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    function isValidMission(data) {
+      return data.clientId is string
+        && data.freelanceId is string
+        && data.status in ['pending', 'accepted', 'completed', 'cancelled'];
+    }
+
+    function isMissionParticipant(data) {
+      return isSignedIn()
+        && (request.auth.uid == data.clientId || request.auth.uid == data.freelanceId);
+    }
+
     // MARKETPLACE: services are readable by any signed-in user and writable only
     // by their owning freelancer (freelanceId == uid).
     match /services/{serviceId} {
@@ -50,6 +61,22 @@ service cloud.firestore {
         && isValidService(request.resource.data)
         && request.resource.data.freelanceId == resource.data.freelanceId;
       allow delete: if isSignedIn() && resource.data.freelanceId == request.auth.uid;
+    }
+
+    // MISSIONS: readable and updatable by either participant (client or
+    // freelancer). Only a client may open a mission (as `pending`), and the two
+    // participants are immutable after creation.
+    match /missions/{missionId} {
+      allow read: if isMissionParticipant(resource.data);
+      allow create: if isSignedIn()
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && isValidMission(request.resource.data);
+      allow update: if isMissionParticipant(resource.data)
+        && isValidMission(request.resource.data)
+        && request.resource.data.clientId == resource.data.clientId
+        && request.resource.data.freelanceId == resource.data.freelanceId;
+      allow delete: if false;
     }
 
     // Collections for later roadmap phases are locked until implemented.

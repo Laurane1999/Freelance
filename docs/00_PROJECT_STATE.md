@@ -1,6 +1,6 @@
 # PROJECT STATE
 
-CURRENT_PHASE: MARKETPLACE
+CURRENT_PHASE: MISSIONS
 STATUS: IN_PROGRESS
 
 COMPLETED_PHASES:
@@ -12,14 +12,15 @@ COMPLETED_PHASES:
 - CORE_DOCS
 - AUTH_SYSTEM
 - USER_PROFILE
-
-ACTIVE_PHASE:
 - MARKETPLACE
 
+ACTIVE_PHASE:
+- MISSIONS
+
 ACTIVE_TASKS:
-- Browse services
-- Create service listing (freelancers)
-- Firestore rules for services
+- Hire a freelancer (create mission)
+- Track mission status (accept / complete / cancel)
+- Firestore rules for missions
 
 NEXT_PHASE:
-- MISSIONS
+- CHAT
