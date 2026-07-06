@@ -73,3 +73,30 @@
     accept/complete/decline; the client may only cancel.
 - Adds `userRole`/`isClient`/`isFreelancer` rule helpers (via `get()` on the
   user doc). No data-model or UI changes; UI already gated these features by role.
+
+## NAVIGATION (docs/16_NAVIGATION)
+- Replaced the authenticated Stack with a role-aware bottom **tab bar**
+  (`@expo/vector-icons` Ionicons, active-tab highlight in brand colors).
+  - Shared tabs: Home, Missions, Messages, Profile.
+  - Freelancer-only tab: **Services** (marketplace).
+  - Client-only tab: **Notifications**.
+  - Non-tab routes stay reachable with the tab bar visible: `service-new`
+    (hidden), and chat detail via a nested Stack under the Messages tab.
+- Tab-only navigation cleanup: removed every button that navigated between main
+  screens; screen-to-screen movement is now exclusively through the bottom tab bar.
+  - Home is now the **services marketplace** (docs/16_NAVIGATION: client Home =
+    "browse services", freelancer Home = "marketplace") instead of a dashboard of
+    nav buttons. Clients browse + hire here; freelancers see all listings.
+  - Freelancer **Services** tab now lists the freelancer's **own** services with
+    the "+ New" publish action (spec: "my services").
+  - **Log out** moved from Home to the **Profile** tab (spec: Profile = settings).
+  - Removed the Profile "Back" button (Profile is a tab).
+  - Extracted a shared `MarketplaceView` component (used by Home + Services) to
+    avoid duplicate browse/list components.
+  - Remaining buttons are feature actions only (Hire, "+ New" service, Publish,
+    Cancel form, Save changes, mission Accept/Decline/Complete/Cancel, Message, Send).
+- Assumptions / deviations:
+  - **Notifications is a placeholder screen** ("No notifications yet") — the
+    NOTIFICATIONS feature and its data model remain out of scope, so there is no
+    backend wiring. Kept to match the client tab list in the nav spec.
+  - No data-model or Firestore-rules changes.
