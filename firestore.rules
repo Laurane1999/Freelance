@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Firestore security rules (docs/12_FIREBASE_RULES).
+// Firestore is the single source of truth; validate before writing and keep
+// user data secured to its owner. Only the AUTH_SYSTEM phase (users) is in scope.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.name is string
+        && data.name.size() > 0
+        && data.email is string
+        && data.role in ['client', 'freelance']
+        && data.skills is list;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Collections for later roadmap phases are locked until implemented.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
