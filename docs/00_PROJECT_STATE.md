@@ -1,6 +1,6 @@
 # PROJECT STATE
 
-CURRENT_PHASE: USER_PROFILE
+CURRENT_PHASE: MARKETPLACE
 STATUS: IN_PROGRESS
 
 COMPLETED_PHASES:
@@ -11,14 +11,15 @@ COMPLETED_PHASES:
 - UI_UX
 - CORE_DOCS
 - AUTH_SYSTEM
-
-ACTIVE_PHASE:
 - USER_PROFILE
 
+ACTIVE_PHASE:
+- MARKETPLACE
+
 ACTIVE_TASKS:
-- View own profile
-- Edit name / photo / skills
-- Persist profile changes to Firestore
+- Browse services
+- Create service listing (freelancers)
+- Firestore rules for services
 
 NEXT_PHASE:
-- MARKETPLACE
+- MISSIONS

@@ -37,6 +37,14 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# firebase emulator / local test artifacts
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+firestore-export/
+test-plan.md
+
 example
 
 # generated native folders

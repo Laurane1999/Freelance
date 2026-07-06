@@ -27,7 +27,12 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.nav}>
-        <Button label="Edit profile" onPress={() => router.push('/(app)/profile')} />
+        <Button label="Marketplace" onPress={() => router.push('/(app)/marketplace')} />
+        <Button
+          label="Edit profile"
+          variant="ghost"
+          onPress={() => router.push('/(app)/profile')}
+        />
       </View>
 
       <View style={styles.spacer} />
