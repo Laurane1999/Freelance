@@ -6,6 +6,7 @@ import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { Brand } from '@/constants/theme';
 import { useSession } from '@/hooks/use-auth';
+import { useMissionActions } from '@/hooks/use-missions';
 import { useServices } from '@/hooks/use-services';
 import type { Service } from '@/types/service';
 
@@ -13,14 +14,29 @@ export default function MarketplaceScreen() {
   const router = useRouter();
   const { user } = useSession();
   const { services, loading, error, reload } = useServices();
+  const { submitting, error: hireError, hire } = useMissionActions();
 
   const isFreelancer = user?.role === 'freelance';
+  const isClient = user?.role === 'client';
 
   useFocusEffect(
     useCallback(() => {
       reload();
     }, [reload]),
   );
+
+  const onHire = async (service: Service) => {
+    if (!user) return;
+    const ok = await hire({
+      clientId: user.id,
+      freelanceId: service.freelanceId,
+      serviceId: service.id,
+      serviceTitle: service.title,
+    });
+    if (ok) {
+      router.push('/(app)/missions');
+    }
+  };
 
   return (
     <Screen scroll={false}>
@@ -34,6 +50,8 @@ export default function MarketplaceScreen() {
           />
         ) : null}
       </View>
+
+      {hireError ? <Text style={styles.error}>{hireError}</Text> : null}
 
       {loading ? (
         <ActivityIndicator size="large" color={Brand.primary} style={styles.loader} />
@@ -49,7 +67,13 @@ export default function MarketplaceScreen() {
             <Text style={styles.empty}>No services yet. Check back soon.</Text>
           }
           renderItem={({ item }) => (
-            <ServiceCard service={item} isOwn={item.freelanceId === user?.id} />
+            <ServiceCard
+              service={item}
+              isOwn={item.freelanceId === user?.id}
+              canHire={isClient}
+              hiring={submitting}
+              onHire={onHire}
+            />
           )}
         />
       )}
@@ -57,7 +81,19 @@ export default function MarketplaceScreen() {
   );
 }
 
-function ServiceCard({ service, isOwn }: { service: Service; isOwn: boolean }) {
+function ServiceCard({
+  service,
+  isOwn,
+  canHire,
+  hiring,
+  onHire,
+}: {
+  service: Service;
+  isOwn: boolean;
+  canHire: boolean;
+  hiring: boolean;
+  onHire: (service: Service) => void;
+}) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -66,6 +102,14 @@ function ServiceCard({ service, isOwn }: { service: Service; isOwn: boolean }) {
       </View>
       <Text style={styles.cardDescription}>{service.description}</Text>
       {isOwn ? <Text style={styles.ownBadge}>Your listing</Text> : null}
+      {canHire && !isOwn ? (
+        <Button
+          label="Hire"
+          disabled={hiring}
+          onPress={() => onHire(service)}
+          style={styles.hireButton}
+        />
+      ) : null}
     </View>
   );
 }
@@ -128,6 +172,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: Brand.primary,
+  },
+  hireButton: {
+    marginTop: 8,
+    height: 44,
   },
   empty: {
     textAlign: 'center',
