@@ -1,7 +1,7 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 import { db } from '@/services/firebase';
-import type { NewUserInput, User } from '@/types/user';
+import type { NewUserInput, ProfileUpdateInput, User } from '@/types/user';
 
 const USERS_COLLECTION = 'users';
 
@@ -32,6 +32,27 @@ export async function createUserDocument(input: NewUserInput): Promise<User> {
   await setDoc(doc(db, USERS_COLLECTION, input.id), data);
 
   return { id: input.id, ...data };
+}
+
+/**
+ * Updates the editable profile fields of a user document (USER_PROFILE phase).
+ * Returns the refreshed profile.
+ */
+export async function updateUserProfile(
+  id: string,
+  input: ProfileUpdateInput,
+): Promise<User> {
+  await updateDoc(doc(db, USERS_COLLECTION, id), {
+    name: input.name,
+    photo: input.photo,
+    skills: input.skills,
+  });
+
+  const profile = await getUserById(id);
+  if (!profile) {
+    throw new Error('profile/not-found');
+  }
+  return profile;
 }
 
 /**

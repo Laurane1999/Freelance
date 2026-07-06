@@ -1,6 +1,6 @@
 # PROJECT STATE
 
-CURRENT_PHASE: AUTH_SYSTEM
+CURRENT_PHASE: USER_PROFILE
 STATUS: IN_PROGRESS
 
 COMPLETED_PHASES:
@@ -10,15 +10,15 @@ COMPLETED_PHASES:
 - DATABASE
 - UI_UX
 - CORE_DOCS
-
-ACTIVE_PHASE:
 - AUTH_SYSTEM
 
+ACTIVE_PHASE:
+- USER_PROFILE
+
 ACTIVE_TASKS:
-- Firebase authentication setup
-- User creation in Firestore
-- Login / Register / Reset UI
-- Session persistence
+- View own profile
+- Edit name / photo / skills
+- Persist profile changes to Firestore
 
 NEXT_PHASE:
-- USER_PROFILE
+- MARKETPLACE
