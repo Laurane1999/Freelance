@@ -73,3 +73,21 @@
     accept/complete/decline; the client may only cancel.
 - Adds `userRole`/`isClient`/`isFreelancer` rule helpers (via `get()` on the
   user doc). No data-model or UI changes; UI already gated these features by role.
+
+## NAVIGATION (docs/16_NAVIGATION)
+- Replaced the authenticated Stack with a role-aware bottom **tab bar**
+  (`@expo/vector-icons` Ionicons, active-tab highlight in brand colors).
+  - Shared tabs: Home, Missions, Messages, Profile.
+  - Freelancer-only tab: **Services** (marketplace).
+  - Client-only tab: **Notifications**.
+  - Non-tab routes stay reachable with the tab bar visible: `service-new`
+    (hidden), and chat detail via a nested Stack under the Messages tab.
+- Assumptions / deviations:
+  - **Notifications is a placeholder screen** ("No notifications yet") — the
+    NOTIFICATIONS feature and its data model remain out of scope, so there is no
+    backend wiring. Kept to match the client tab list in the nav spec.
+  - The freelancer "Services" tab points at the existing marketplace screen
+    (which already marks "Your listing" and gates "+ New"); no separate
+    "my services" screen was added (no model changes).
+  - Clients reach the marketplace from the Home screen button (marketplace is
+    not a client tab per the spec); no data-model or rules changes.
