@@ -14,6 +14,20 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Role of the signed-in user (docs/15_USER_ROLES). Enforces role-restricted
+    // actions at the data layer, not just in the UI.
+    function userRole(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
+    }
+
+    function isClient() {
+      return isSignedIn() && userRole(request.auth.uid) == 'client';
+    }
+
+    function isFreelancer() {
+      return isSignedIn() && userRole(request.auth.uid) == 'freelance';
+    }
+
     function isValidUser(data) {
       return data.name is string
         && data.name.size() > 0
@@ -50,10 +64,11 @@ service cloud.firestore {
     }
 
     // MARKETPLACE: services are readable by any signed-in user and writable only
-    // by their owning freelancer (freelanceId == uid).
+    // by their owning freelancer (freelanceId == uid). Only freelancers may
+    // create services (docs/15_USER_ROLES: clients cannot create services).
     match /services/{serviceId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn()
+      allow create: if isFreelancer()
         && request.resource.data.freelanceId == request.auth.uid
         && isValidService(request.resource.data);
       allow update: if isSignedIn()
@@ -65,17 +80,27 @@ service cloud.firestore {
 
     // MISSIONS: readable and updatable by either participant (client or
     // freelancer). Only a client may open a mission (as `pending`), and the two
-    // participants are immutable after creation.
+    // participants are immutable after creation (docs/15_USER_ROLES: freelancers
+    // cannot create missions; clients cannot hire themselves).
     match /missions/{missionId} {
       allow read: if isMissionParticipant(resource.data);
-      allow create: if isSignedIn()
+      allow create: if isClient()
         && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.clientId != request.resource.data.freelanceId
         && request.resource.data.status == 'pending'
         && isValidMission(request.resource.data);
+      // Freelancer advances the work (accept / decline / complete); the client
+      // may only cancel. Participants are immutable.
       allow update: if isMissionParticipant(resource.data)
         && isValidMission(request.resource.data)
         && request.resource.data.clientId == resource.data.clientId
-        && request.resource.data.freelanceId == resource.data.freelanceId;
+        && request.resource.data.freelanceId == resource.data.freelanceId
+        && (
+          (request.auth.uid == resource.data.freelanceId
+            && request.resource.data.status in ['accepted', 'completed', 'cancelled'])
+          || (request.auth.uid == resource.data.clientId
+            && request.resource.data.status == 'cancelled')
+        );
       allow delete: if false;
     }
 
