@@ -1,56 +1,63 @@
-# Welcome to your Expo app 👋
+# Freelance App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A freelancing marketplace mobile app built with Expo (React Native) + TypeScript
++ Firebase. The project is built phase-by-phase following the specs in [`docs/`](./docs).
 
-## Get started
+**Current phase: `AUTH_SYSTEM`** (see [`docs/00_PROJECT_STATE.md`](./docs/00_PROJECT_STATE.md)).
 
-1. Install dependencies
+## Architecture
 
-   ```bash
-   npm install
-   ```
+Strict layering (see [`docs/02_ARCHITECTURE.md`](./docs/02_ARCHITECTURE.md) and
+[`docs/12_FIREBASE_RULES.md`](./docs/12_FIREBASE_RULES.md)):
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+UI (src/app) → hooks (src/hooks) → services (src/services) → Firebase
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- `src/app/` — screens & routing (Expo Router). Never touches Firebase directly.
+- `src/hooks/` — logic layer (`useAuth`, session state).
+- `src/services/` — the ONLY layer that talks to Firebase (`firebase.ts`, `auth-service.ts`, `user-service.ts`).
+- `src/context/` — global state (`AuthProvider`, session persistence).
+- `src/types/` — TypeScript models.
+- `src/utils/` — helpers (validation, error mapping).
+- `src/components/` — reusable UI (`Button`, `TextField`, `Screen`, `RoleSelector`).
 
-### Other setup steps
+## Auth system (this phase)
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- Register → create Firebase auth user → create Firestore `users/{uid}` document.
+- Login → authenticate → load Firestore profile.
+- Logout → Firebase `signOut`.
+- Reset → send password reset email.
+- Session persists across restarts (AsyncStorage on native, local persistence on web).
 
-## Learn more
+## Setup
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm install
+cp .env.example .env   # then fill in your Firebase web config
+npm run start          # or: npm run android / npm run ios / npm run web
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Firebase configuration
 
-## Join the community
+Copy `.env.example` to `.env` and fill in the values from the Firebase console
+(Project settings → General → Your apps → Web app → SDK setup and configuration):
 
-Join our community of developers creating universal apps.
+```
+EXPO_PUBLIC_FIREBASE_API_KEY=...
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=...
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+EXPO_PUBLIC_FIREBASE_APP_ID=...
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Enable **Email/Password** sign-in in Firebase Authentication and deploy the
+Firestore security rules in [`firestore.rules`](./firestore.rules).
+
+## Quality checks
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run lint        # expo lint
+```

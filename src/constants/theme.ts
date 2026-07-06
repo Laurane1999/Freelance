@@ -26,6 +26,21 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+/**
+ * Brand palette (docs/04_UI_UX). Minimal, clean, mobile-first.
+ */
+export const Brand = {
+  primary: '#0A1F44',
+  accent: '#22C55E',
+  background: '#FFFFFF',
+  surface: '#F5F7FA',
+  border: '#E2E8F0',
+  text: '#0A1F44',
+  textMuted: '#64748B',
+  error: '#DC2626',
+  white: '#FFFFFF',
+} as const;
+
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
