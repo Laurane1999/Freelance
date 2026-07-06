@@ -63,3 +63,13 @@
     the schema fields (senderId, text, createdAt); the conversation id is the path.
   - Added `lastText`, `createdAt`, `updatedAt` to conversations for list preview/order.
   - Conversations are 1:1 (exactly two participants).
+
+## ROLE_HARDENING (docs/15_USER_ROLES)
+- Enforce role-restricted actions at the Firestore rules layer (not just UI):
+  - Only freelancers can create services (clients cannot).
+  - Only clients can create missions; a client cannot hire themselves
+    (clientId != freelanceId).
+  - Mission status transitions are role-gated: the freelancer may
+    accept/complete/decline; the client may only cancel.
+- Adds `userRole`/`isClient`/`isFreelancer` rule helpers (via `get()` on the
+  user doc). No data-model or UI changes; UI already gated these features by role.
